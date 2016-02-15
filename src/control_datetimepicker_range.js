@@ -65,21 +65,20 @@ var control_datetimepicker_range = {
      * @param {object} wrapper
      */
     rebuildCalendar : function(wrapper) {
-        var input_from_value = $('.ctrl-dtpr-from-value', wrapper).val();
-        var input_to_value   = $('.ctrl-dtpr-to-value', wrapper).val();
-        var dateFormat       = 'yy-mm-dd';
-        var $ctrl            = $('.ctrl-dtpr-container', wrapper);
+        var $input_from = $('.ctrl-dtpr-from-value', wrapper);
+        var $input_to   = $('.ctrl-dtpr-to-value', wrapper);
+        var dateFormat  = 'yy-mm-dd';
+        var $ctrl       = $('.ctrl-dtpr-container', wrapper);
 
-        $ctrl.datepicker('setDate', input_from_value)
+        $ctrl.datepicker('setDate', $input_from.val());
         $ctrl.datepicker( "option", "beforeShowDay", function(date) {
-            var date1 = $.datepicker.parseDate(dateFormat, input_from_value);
-            var date2 = $.datepicker.parseDate(dateFormat, input_to_value);
+            var date1 = $.datepicker.parseDate(dateFormat, $input_from.val());
+            var date2 = $.datepicker.parseDate(dateFormat, $input_to.val());
             var classes = date1 && ((date.getTime() == date1.getTime()) || (date2 && date >= date1 && date < date2))
                 ? ' ctrl-dtpr-highlight '
                 : '';
             var classes2 = control_datetimepicker_range.callbackDayClass(date);
             classes += classes2 ? ' ' + classes2 + ' ' : '';
-
             return [true, classes];
         });
     },
