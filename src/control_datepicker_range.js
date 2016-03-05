@@ -111,9 +111,9 @@ var control_datepicker_range = {
         month_from = Number(month_from) > 0 ? month_from : '';
         year_from  = Number(year_from) > 0 ? year_from : '';
 
-        day_from   = day_from.length > 2 ? day_from.substr(-2, 2) : day_from;
-        month_from = month_from.length > 2 ? month_from.substr(-2, 2) : month_from;
-        year_from  = year_from.length > 4 ? year_from.substr(-4, 4) : year_from;
+        day_from   = day_from.length > 2 ? day_from.substr(0, 2) : day_from;
+        month_from = month_from.length > 2 ? month_from.substr(0, 2) : month_from;
+        year_from  = year_from.length > 4 ? year_from.substr(0, 4) : year_from;
 
         day_from   = day_from   ? '00'.substring(0, 2 - day_from.length) + day_from     : '';
         month_from = month_from ? '00'.substring(0, 2 - month_from.length) + month_from : '';
@@ -124,9 +124,9 @@ var control_datepicker_range = {
         month_to = Number(month_to) > 0 ? month_to : '';
         year_to  = Number(year_to) > 0 ? year_to : '';
 
-        day_to   = day_to.length > 2 ? day_to.substr(-2, 2) : day_to;
-        month_to = month_to.length > 2 ? month_to.substr(-2, 2) : month_to;
-        year_to  = year_to.length > 4 ? year_to.substr(-4, 4) : year_to;
+        day_to   = day_to.length > 2 ? day_to.substr(0, 2) : day_to;
+        month_to = month_to.length > 2 ? month_to.substr(0, 2) : month_to;
+        year_to  = year_to.length > 4 ? year_to.substr(0, 4) : year_to;
 
         day_to   = day_to   ? '00'.substring(0, 2 - day_to.length) + day_to     : '';
         month_to = month_to ? '00'.substring(0, 2 - month_to.length) + month_to : '';
@@ -182,7 +182,7 @@ var control_datepicker_range = {
         var keyCode;
         if (e.keyCode) keyCode = e.keyCode;
         else if(e.which) keyCode = e.which;
-        var av = new Array(8, 9, 35, 36, 37, 38, 40, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57);
+        var av = new Array(8, 9, 35, 36, 37, 38, 39, 40, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57);
         for (var i = 0; i < av.length; i++) {
             if (av[i] == keyCode) {
                 return;
@@ -219,18 +219,16 @@ var control_datepicker_range = {
                 from_last_day = 32 - new Date(from_year, from_month - 1, 32).getDate();
             }
             if (input.value.length > 2) {
-                input.value = input.value.substr(-2, 2);
+                input.value = input.value.substr(0, 2);
             }
-            if (input.value == '00') {
+            if (input.value == '00' || Number(input.value) < 0) {
                 input.value = '01';
             } else if (Number(input.value) > from_last_day) {
                 input.value = from_last_day;
             } else if (input.value == '') {
                 input.value = '';
-            } else if (Number(input.value) < 0) {
-                input.value = 0;
             }
-            
+
         } else if (control_datepicker_range.hasClass(input, 'ctrl-dpr-to-day')) {
             var to_month    = parseInt($('.ctrl-dpr-to-month', wrapper).val());
             var to_year     = parseInt($('.ctrl-dpr-to-year', wrapper).val());
@@ -240,41 +238,35 @@ var control_datepicker_range = {
                 to_last_day = 32 - new Date(to_year, to_month - 1, 32).getDate();
             }
             if (input.value.length > 2) {
-                input.value = input.value.substr(-2, 2);
+                input.value = input.value.substr(0, 2);
             }
-            if (input.value == '00') {
+            if (input.value == '00' || Number(input.value) < 0) {
                 input.value = '01';
             } else if (Number(input.value) > to_last_day) {
                 input.value = to_last_day;
             } else if (input.value == '') {
                 input.value = '';
-            } else if (Number(input.value) < 0) {
-                input.value = 0;
             }
             
         } else if (control_datepicker_range.hasClass(input, 'ctrl-dpr-from-month') ||
                    control_datepicker_range.hasClass(input, 'ctrl-dpr-to-month')
         ) {
             if (input.value.length > 2) {
-                input.value = input.value.substr(-2, 2);
+                input.value = input.value.substr(0, 2);
             }
-            if (input.value == '00') {
+            if (input.value == '00' || Number(input.value) < 0) {
                 input.value = '01';
             } else if (Number(input.value) > 12) {
                 input.value = 12;
             } else if (input.value == '') {
                 input.value = '';
-            } else if (Number(input.value) < 0) {
-                input.value = 0;
             }
 
         } else if (control_datepicker_range.hasClass(input, 'ctrl-dpr-from-year') ||
                    control_datepicker_range.hasClass(input, 'ctrl-dpr-to-year')
         ) {
-            if (Number(input.value) > 9999) {
-                input.value = 9999;
-            } else if (input.value.length > 4) {
-                input.value = input.value.substr(-4, 4);
+            if (input.value.length > 4) {
+                input.value = input.value.substr(0, 4);
             }
         }
         input.focus();
@@ -317,11 +309,61 @@ var control_datepicker_range = {
         /**
          * Валидация
          */
-        $('.ctrl-dpr-from-day, .ctrl-dpr-from-month, .ctrl-dpr-from-year', wrapper).keyup(function() {
+        $('.ctrl-dpr-from-day, .ctrl-dpr-from-month, .ctrl-dpr-from-year', wrapper).keyup(function(event) {
             control_datepicker_range.eventKeyUp(this, wrapper);
+
+            var keyCode;
+            if (event.keyCode) keyCode = event.keyCode;
+            else if (event.which) keyCode = event.which;
+            var av = new Array(48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105);
+            for (var i = 0; i < av.length; i++) {
+                if (av[i] == keyCode) {
+                    if ($(event.currentTarget).hasClass("ctrl-dpr-from-day") ||
+                        $(event.currentTarget).hasClass("ctrl-dpr-from-month")
+                    ) {
+                        if ($(this, wrapper).val().length >= 2) {
+                            event.preventDefault();
+                            control_datepicker_range.nextFocus(this, wrapper);
+                        }
+
+                    } else {
+                        if ($(this, wrapper).val().length >= 4) {
+                            event.preventDefault();
+                            control_datepicker_range.nextFocus(this, wrapper);
+                        }
+                    }
+                    break;
+                }
+            }
+
+
         });
-        $('.ctrl-dpr-to-day, .ctrl-dpr-to-month, .ctrl-dpr-to-year', wrapper).keyup(function() {
+        $('.ctrl-dpr-to-day, .ctrl-dpr-to-month, .ctrl-dpr-to-year', wrapper).keyup(function(event) {
             control_datepicker_range.eventKeyUp(this, wrapper);
+
+            var keyCode;
+            if (event.keyCode) keyCode = event.keyCode;
+            else if (event.which) keyCode = event.which;
+            var av = new Array(48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105);
+            for (var i = 0; i < av.length; i++) {
+                if (av[i] == keyCode) {
+                    if ($(event.currentTarget).hasClass("ctrl-dpr-to-day") ||
+                        $(event.currentTarget).hasClass("ctrl-dpr-to-month")
+                    ) {
+                        if ($(this, wrapper).val().length >= 2) {
+                            event.preventDefault();
+                            control_datepicker_range.nextFocus(this, wrapper);
+                        }
+
+                    } else {
+                        if ($(this, wrapper).val().length >= 4) {
+                            event.preventDefault();
+                            control_datepicker_range.nextFocus(this, wrapper);
+                        }
+                    }
+                    break;
+                }
+            }
         });
         $('.ctrl-dpr-from-day, .ctrl-dpr-from-month, .ctrl-dpr-from-year', wrapper).keypress(function(event) {
             control_datepicker_range.eventKeyPress(event);
@@ -338,6 +380,32 @@ var control_datepicker_range = {
     callbackChange : function(date_from, date_to, wrapper) {
         if (typeof this.callback_change == 'function') {
             this.callback_change(date_from, date_to, wrapper);
+        }
+    },
+
+
+    /**
+     * Фокусировка на следующем контроле
+     * @param {object} currentTarget
+     * @param {object} wrapper
+     */
+    nextFocus: function(currentTarget, wrapper) {
+
+        var now = new Date().getTime() / 1000;
+
+        if ( ! this.lastNextChange || this.lastNextChange + 0.3 < now) {
+            this.lastNextChange = now;
+            var isFind = false;
+            $('input[class*="ctrl-dpr-"]:visible, select[class*="ctrl-dpr-"]:visible', wrapper).each(function () {
+                if (isFind === false) {
+                    if (currentTarget == this) {
+                        isFind = true;
+                    }
+                } else {
+                    $(this).focus();
+                    return false;
+                }
+            });
         }
     },
 
